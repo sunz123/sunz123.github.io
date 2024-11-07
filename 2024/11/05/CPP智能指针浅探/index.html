@@ -27,9 +27,11 @@
 <meta property="og:description" content="智能指针智能指针是c++11引入的新特性，其本质是封装了一个原始c++指针的类模板，为了确保动态内存的安全性而产生的。实现原理是通过一个对象存储需要被自动释放的资源，然后依靠对象的析构函数来释放资源。其头文件是#include &lt;memory&gt; unique_ptr1、介绍 unique_ptr 不共享它的指针。它无法复制到其他 unique_ptr，无法通过值传递到函数，也无法用于需">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-11-05T14:47:04.000Z">
-<meta property="article:modified_time" content="2024-11-06T15:45:08.132Z">
+<meta property="article:modified_time" content="2024-11-07T06:41:36.174Z">
 <meta property="article:author" content="Leo Sun">
 <meta property="article:tag" content="C++">
+<meta property="article:tag" content="内存管理">
+<meta property="article:tag" content="指针">
 <meta name="twitter:card" content="summary_large_image">
   
   
@@ -235,7 +237,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          525 字
+          715 字
         
       </span>
     
@@ -246,7 +248,7 @@
         
         
         
-          5 分钟
+          6 分钟
         
       </span>
     
@@ -288,7 +290,7 @@
               <p id="updated-time" class="note note-info" style="">
                 
                   
-                    本文最后更新于 2024年11月6日 晚上
+                    本文最后更新于 2024年11月7日 下午
                   
                 
               </p>
@@ -319,7 +321,25 @@
 
 <figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::unique_ptr&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">p</span><span class="hljs-params">(<span class="hljs-keyword">new</span> <span class="hljs-type">int</span>(<span class="hljs-number">5</span>))</span></span>;<br>    std::unique_ptr&lt;<span class="hljs-type">int</span>&gt; p2 = std::<span class="hljs-built_in">move</span>(p); <span class="hljs-comment">// 转移所有权</span><br>    <span class="hljs-comment">// std::cout &lt;&lt; *p &lt;&lt; endl; // 报错，p为空</span><br>    std::cout &lt;&lt; *p2 &lt;&lt; endl;<br>    <span class="hljs-function">unique_ptr&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">p</span><span class="hljs-params">(std::move(p2))</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<h3 id="5、可以返回unique-ptr"><a href="#5、可以返回unique-ptr" class="headerlink" title="5、可以返回unique_ptr"></a>5、可以返回unique_ptr</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">unique_ptr&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">clone</span><span class="hljs-params">(<span class="hljs-type">int</span> p)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">unique_ptr&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">pI</span><span class="hljs-params">(<span class="hljs-keyword">new</span> <span class="hljs-type">int</span>(<span class="hljs-number">5</span>))</span></span>;<br>    <span class="hljs-keyword">return</span> pI;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> p = <span class="hljs-number">5</span>;<br>    unique_ptr&lt;<span class="hljs-type">int</span>&gt; ret = <span class="hljs-built_in">clone</span>(p);<br>    cout &lt;&lt; *ret &lt;&lt; endl;<br>&#125;<br></code></pre></td></tr></table></figure>
 
+<h3 id="6、unique-ptr一些使用场景"><a href="#6、unique-ptr一些使用场景" class="headerlink" title="6、unique_ptr一些使用场景"></a>6、unique_ptr一些使用场景</h3><div class="note note-info">
+            <ul><li>在容器中保存指针</li></ul>
+          </div>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs C++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    vector&lt;unique_ptr&lt;<span class="hljs-type">int</span>&gt;&gt; vec;<br>    <span class="hljs-function">unique_ptr&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">p</span><span class="hljs-params">(<span class="hljs-keyword">new</span> <span class="hljs-type">int</span>(<span class="hljs-number">5</span>))</span></span>;<br>    vec.<span class="hljs-built_in">push_back</span>(std::<span class="hljs-built_in">move</span>(p));<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<div class="note note-info">
+            <ul><li>管理动态数组</li></ul>
+          </div>
+
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">unique_ptr&lt;<span class="hljs-type">int</span>[]&gt; <span class="hljs-title">p</span><span class="hljs-params">(<span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[<span class="hljs-number">5</span>]&#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>&#125;)</span></span>;<br>    p[<span class="hljs-number">0</span>] = <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<div class="note note-success">
+            <ul><li>unique_ptr可以不占用对象，即为空。可以通过reset或者赋值nullptr释放管理对象</li><li>标准库早期版本中定了auto_ptr，它具有unique_ptr的部分特征，但不是全部。例如不能在容器中保存auto_ptr，不能从函数中返回auto_ptr等等，这也是unique_ptr主要的使用场景。</li></ul>
+          </div>
+
+<h2 id="shared-ptr"><a href="#shared-ptr" class="headerlink" title="shared_ptr"></a>shared_ptr</h2><h3 id="1、介绍-1"><a href="#1、介绍-1" class="headerlink" title="1、介绍"></a>1、介绍</h3>
                 
               </div>
             
@@ -327,11 +347,36 @@
             <div>
               <div class="post-metas my-3">
   
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/c/" class="category-chain-item">c++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
   
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
         <a href="/tags/C/" class="print-no-link">#C++</a>
+      
+        <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="print-no-link">#内存管理</a>
+      
+        <a href="/tags/%E6%8C%87%E9%92%88/" class="print-no-link">#指针</a>
       
     </div>
   
@@ -362,7 +407,7 @@
       
         <div class="license-meta-item license-meta-date">
           <div>更新于</div>
-          <div>2024年11月6日</div>
+          <div>2024年11月7日</div>
         </div>
       
       
@@ -392,6 +437,12 @@
                 <div class="post-prevnext my-3">
                   <article class="post-prev col-6">
                     
+                    
+                      <a href="/2024/11/06/hexo-github-pages-jsdelivr-cloudflare-PicGo%E5%AE%9E%E7%8E%B0%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2/" title="hexo+github pages+jsdelivr+cloudflare+PicGo实现个人博客">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">hexo+github pages+jsdelivr+cloudflare+PicGo实现个人博客</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
                     
                   </article>
                   <article class="post-next col-6">
@@ -501,7 +552,7 @@
     <div class="footer-inner">
   
     <div class="footer-content">
-       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> <div style="font-size: 0.85rem"> <span id="timeDate">载入天数...</span> <span id="times">载入时分秒...</span> <script src="/js/duration.js"></script> </div> 
     </div>
   
   
